@@ -8,9 +8,10 @@ ARG TARGETARCH
 COPY . /app
 
 # Build
-RUN cd /app && go build -o kube-rbac-proxy .
+RUN cd /app && CGO_ENABLED=0 go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o kube-rbac-proxy .
 
-FROM gcr.io/distroless/static:nonroot
+
+FROM gcr.io/distroless/static:nonroot as final
 
 COPY --from=builder /app/kube-rbac-proxy /usr/local/bin/kube-rbac-proxy
 EXPOSE 8080
